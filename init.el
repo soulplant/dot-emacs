@@ -25,8 +25,14 @@
   :config)
 
 
-(global-display-line-numbers-mode)
+;; (global-display-line-numbers-mode)
 
+;; We don't turn this on because it makes cursor movement really slow.
+;; (setq display-line-numbers-type 'relative)
+;; (setq display-line-numbers-type t)
+(display-line-numbers-mode)
+(setq auto-save-default nil)
+(setq make-backup-files nil)
 
 
 (use-package evil-escape
@@ -105,6 +111,7 @@
 
 (with-eval-after-load 'evil-maps
   (define-key evil-normal-state-map (kbd "Q") 'evil-quit)
+  (define-key evil-normal-state-map (kbd "s-i") 'evil-quit)
   (define-key evil-insert-state-map (kbd "C-t") nil)
   (define-key evil-insert-state-map (kbd "C-e") nil)
   (define-key evil-insert-state-map (kbd "C-a") nil)
@@ -144,15 +151,25 @@
 	  (lambda ()
 	    (evil-escape-mode)))
 
+(add-hook 'cider-repl-mode-hook
+	  (lambda ()
+	    (company-mode)))
+
 (add-hook 'cider-mode-hook
 	  (lambda ()
 	    (with-eval-after-load 'evil-maps
-	      (define-key evil-normal-state-map (kbd "K") 'cider-doc))
-	    (evil-escape-mode)))
+	      (define-key evil-normal-state-map (kbd "K") 'cider-doc)
+	      (define-key evil-normal-state-map (kbd "gd") 'cider-find-var))
+	    (evil-escape-mode)
+	    (company-mode)))
 
 (add-hook 'clojure-mode-hook
 	  (lambda ()
 	    (lispy-mode)
+	    ;; Half the time 'e' breaks in regular CLJ mode anyway, so just use our replacement.
+	    (modify-syntax-entry ?- "w" clojure-mode-syntax-table)
+	    (modify-syntax-entry ?_ "w" clojure-mode-syntax-table)
+	    (lispy-clojurescript-mode)
 	    (company-mode)))
 
 (add-hook 'clojurescript-mode-hook
@@ -278,10 +295,12 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(cider-clojure-cli-aliases "dev")
  '(custom-safe-themes
    '("d14f3df28603e9517eb8fb7518b662d653b25b26e83bd8e129acea042b774298" default))
  '(package-selected-packages
-   '(lispy rg projectile git-gutter which-key whichkey evil-escape undo-tree rainbow-delimiters gruvbox-theme magit company evil-collection evil cider use-package)))
+   '(lispy rg projectile git-gutter which-key whichkey evil-escape undo-tree rainbow-delimiters gruvbox-theme magit company evil-collection evil cider use-package))
+ '(safe-local-variable-values '((cider-clojure-cli-aliases "dev"))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
