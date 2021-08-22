@@ -85,10 +85,14 @@
   :config
   (evil-mode 1))
 
+(use-package flycheck-clj-kondo
+  :ensure t)
+
 (use-package clojure-mode
   :ensure t
   :config
-  (show-paren-mode))
+  (show-paren-mode)
+  (require 'flycheck-clj-kondo))
 
 (use-package company
   :ensure t)
