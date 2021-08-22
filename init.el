@@ -94,6 +94,12 @@
   (show-paren-mode)
   (require 'flycheck-clj-kondo))
 
+(use-package rg
+  :ensure t
+  :config
+  (rg-enable-default-bindings)
+  )
+
 (use-package company
   :ensure t)
 
