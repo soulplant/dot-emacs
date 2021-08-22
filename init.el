@@ -179,6 +179,7 @@
 	    ;; Half the time 'e' breaks in regular CLJ mode anyway, so just use our replacement.
 	    (modify-syntax-entry ?- "w" clojure-mode-syntax-table)
 	    (modify-syntax-entry ?_ "w" clojure-mode-syntax-table)
+	    (modify-syntax-entry ?> "w" clojure-mode-syntax-table)
 	    (lispy-clojurescript-mode)
 	    (company-mode)))
 
