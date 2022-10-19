@@ -12,18 +12,56 @@
 (add-to-list 'auto-mode-alist '("\\.fnl\\'" . fennel-mode))
 
 (setq inhibit-startup-screen t)
+(setq visible-bell t)
+
+(use-package org
+  :mode (("\\.org$" . org-mode))
+  ;; :ensure org-plus-contrib
+  :config
+  (progn
+    ;; TODO
+    ))
+
+
+(defun integrant-reset ()
+  (interactive)
+  (cider-interactive-eval "(integrant.repl/reset)"))
+
+(defun integrant-halt ()
+  (interactive)
+  (cider-interactive-eval "(integrant.repl/halt)"))
 
 (use-package cider
+  :after evil
   :ensure t
   ;; :config
   ;; (with-eval-after-load 'evil-maps
   ;;   (define-key evil-normal-state-map (kbd "K") 'cider-doc))
-  )
+  :bind
+  ("C-c r" . (lambda () "integrant/reset"
+	       (interactive)
+	       (cider-interactive-eval "(integrant.repl/reset)")))
+  ("C-c g" . (lambda () "integrant/go"
+	       (interactive)
+	       (cider-interactive-eval "(integrant.repl/go)")))
+  :config
+  (defun save-and-cider-load-buffer ()
+    (interactive)
+    (save-buffer)
+    (cider-load-buffer))
+  (evil-make-intercept-map cider--debug-mode-map 'normal)
+
+  :bind (:map cider-mode-map
+	      ("s-r" . save-and-cider-load-buffer)))
 
 (use-package lispy
   :ensure t
-  :config)
-
+  :config
+  ;; This is necessary to prevent the "Lisp expression" prompt from
+  ;; appearing randomly.
+  ;; Taken from https://github.com/abo-abo/lispy/issues/418.
+  (setq completion-at-point-functions
+	(delq 'lispy-clojure-complete-at-point completion-at-point-functions)))
 
 ;; (global-display-line-numbers-mode)
 
@@ -34,6 +72,9 @@
 (setq auto-save-default nil)
 (setq make-backup-files nil)
 
+
+(global-set-key (kbd "s-[") 'previous-error)
+(global-set-key (kbd "s-]") 'next-error)
 
 (use-package evil-escape
   :ensure t
@@ -92,7 +133,13 @@
   :ensure t
   :config
   (show-paren-mode)
-  (require 'flycheck-clj-kondo))
+  (require 'flycheck-clj-kondo)
+  (put-clojure-indent '>defn :defn)
+  (put-clojure-indent '>def :defn)
+  ;; (setq cider-format-code-options '(("indents"
+  ;; 				     ((">defn" (("inner" 0)))
+  ;; 				      (">def" (("inner" 0)))))))
+  )
 
 (use-package rg
   :ensure t
@@ -169,7 +216,12 @@
 	  (lambda ()
 	    (with-eval-after-load 'evil-maps
 	      (define-key evil-normal-state-map (kbd "K") 'cider-doc)
-	      (define-key evil-normal-state-map (kbd "gd") 'cider-find-var))
+	      (define-key evil-normal-state-map (kbd "gd") 'cider-find-var)
+	      (define-key evil-normal-state-map (kbd "gd") 'cider-find-var)
+	      (define-key evil-normal-state-map (kbd "gl") 'integrant-reset)
+	      (define-key evil-normal-state-map (kbd "gh") 'integrant-halt)
+	      (define-key evil-normal-state-map (kbd "<s-return>") 'cider-pprint-eval-last-sexp)
+	      (define-key evil-insert-state-map (kbd "<s-return>") 'cider-pprint-eval-last-sexp))
 	    (evil-escape-mode)
 	    (company-mode)))
 
@@ -310,8 +362,10 @@
  '(custom-safe-themes
    '("d14f3df28603e9517eb8fb7518b662d653b25b26e83bd8e129acea042b774298" default))
  '(package-selected-packages
-   '(lispy rg projectile git-gutter which-key whichkey evil-escape undo-tree rainbow-delimiters gruvbox-theme magit company evil-collection evil cider use-package))
- '(safe-local-variable-values '((cider-clojure-cli-aliases "dev"))))
+   '(org-plus-contrib lispy rg projectile git-gutter which-key whichkey evil-escape undo-tree rainbow-delimiters gruvbox-theme magit company evil-collection evil cider use-package))
+ '(safe-local-variable-values
+   '((cider-shadow-cljs-default-options . "app")
+     (cider-clojure-cli-aliases "dev"))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

@@ -4,3 +4,7 @@
 /transient
 \#*\#
 .#*
+semanticdb/
+projectile-bookmarks.eld
+projectile.cache
+srecode-map.el
